@@ -26,6 +26,9 @@ A temporary add-on lasts until Firefox restarts.
 2. Click the toolbar button, paste one address per line and choose Save
    Pages. Addresses without `https://` are fine.
 
+Open List... loads a text or CSV file of addresses into the box, and you can
+also drop a file on the box. You'll see them before choosing Save Pages.
+
 A line under the buttons says what was added. Anything that isn't a web
 address stays in the box. While the queue runs, Save Pages reads Stop.
 

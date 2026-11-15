@@ -23,6 +23,7 @@ function draw(state) {
   // One button: SAVE PAGES, or STOP while the queue runs
   running = !!state.running;
   $("start").textContent = running ? "Stop" : "Save Pages";
+  $("open").hidden = running;
   $("retry").hidden = !count("error");
   $("clear").hidden = running || !count("success", "skipped", "error");
 
@@ -79,6 +80,37 @@ $("start").addEventListener("click", async () => {
 });
 // Closes only the dialog window the add-on opened (the background script
 // knows its id); never the browser window. Anywhere else, just this page.
+// Open List... (or a file dropped on the box): reads a text, CSV or TSV file
+// and puts the addresses in it into the box, one per line, for a look before
+// Save Pages. In a CSV, any cell that looks like an address counts.
+function addresses(text) {
+  const found = [];
+  for (const cell of text.split(/[\s,;\t"']+/)) {
+    if (/^(https?:\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(cell) || /^https?:\/\//i.test(cell)) found.push(cell);
+  }
+  return [...new Set(found)];
+}
+async function loadFile(file) {
+  if (!file) return;
+  const found = addresses(await file.text());
+  const box = $("list");
+  box.value = [box.value.trim(), ...found].filter(Boolean).join("\n");
+  $("message").textContent = found.length
+    ? `Read ${found.length} ${found.length === 1 ? "address" : "addresses"} from ${file.name}. Choose Save Pages to start.`
+    : `No web addresses found in ${file.name}.`;
+}
+$("open").addEventListener("click", () => $("file").click());
+$("file").addEventListener("change", () => {
+  loadFile($("file").files[0]);
+  $("file").value = "";
+});
+$("list").addEventListener("dragover", (e) => e.preventDefault());
+$("list").addEventListener("drop", (e) => {
+  if (!e.dataTransfer.files.length) return;
+  e.preventDefault();
+  loadFile(e.dataTransfer.files[0]);
+});
+
 $("close").addEventListener("click", async () => {
   const closed = await send({ type: "closeDialog" }).catch(() => false);
   if (!closed) window.close();
