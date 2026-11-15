@@ -6,44 +6,30 @@
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
-    <header>
-      <h1>Wayback Bulk Save</h1>
-      <p id="signin" class="note"></p>
-    </header>
+    <h1>Wayback Bulk Save</h1>
+    <p id="signin" class="note"></p>
 
-    <label for="list">Addresses, One per Line</label>
-    <textarea id="list" spellcheck="false" placeholder="https://www.example.edu/page.html"></textarea>
-    <div class="row">
-      <button type="button" id="add">Add to List</button>
-      <button type="button" id="add-tab">Add This Page</button>
-    </div>
-
-    <details id="options">
-      <summary>Options</summary>
-      <fieldset>
-        <legend>Save Page Now</legend>
-        <label><input type="checkbox" name="capture_outlinks" /> Save Outlinks</label>
-        <label><input type="checkbox" name="capture_all" /> Save Error Pages (4xx, 5xx)</label>
-        <label><input type="checkbox" name="capture_screenshot" /> Save Screenshot</label>
-        <label><input type="checkbox" name="disable_adblocker" /> Disable Ad Blocker</label>
-        <label><input type="checkbox" name="wm-save-mywebarchive" /> Also Save in My Web Archive</label>
-        <label><input type="checkbox" name="email_result" /> Email Me the Results</label>
-        <label><input type="checkbox" name="wacz" /> Email Me a WACZ File</label>
-      </fieldset>
-      <div class="row">
-        <label>Skip if Saved Within <input type="text" id="within" size="4" placeholder="1d" /></label>
-        <label>Pause <input type="number" id="delay" min="5" step="1" /> Seconds</label>
-      </div>
-      <p class="note">Email options send one email per address.</p>
-    </details>
-
-    <div class="row">
-      <button type="button" id="start" class="primary">Start</button>
-      <button type="button" id="stop">Stop</button>
-      <button type="button" id="retry">Retry Errors</button>
-      <button type="button" id="clear">Clear Done</button>
-    </div>
+    <label for="list" class="sr-only">Addresses, one per line</label>
+    <textarea id="list" spellcheck="false" placeholder="https://&#10;One address per line"></textarea>
+    <button type="button" id="start">SAVE PAGES</button>
     <p id="summary" role="status"></p>
+
+    <div id="options">
+      <label><input type="checkbox" name="capture_outlinks" /> Save outlinks</label>
+      <label><input type="checkbox" name="capture_all" /> Save error pages (HTTP Status=4xx, 5xx)</label>
+      <label><input type="checkbox" name="capture_screenshot" /> Save screenshot</label>
+      <label><input type="checkbox" name="disable_adblocker" /> Disable ad blocker</label>
+      <label><input type="checkbox" name="wm-save-mywebarchive" /> Save also in my web archive</label>
+      <label><input type="checkbox" name="email_result" /> Email me the results (one email per address)</label>
+      <label><input type="checkbox" name="wacz" /> Email me a WACZ file with the results</label>
+      <label>Skip if saved within <input type="text" id="within" size="4" placeholder="1d" /></label>
+      <label>Wait between saves <input type="number" id="delay" min="5" step="1" /> seconds</label>
+    </div>
+
+    <div id="more">
+      <button type="button" id="retry" hidden>Retry Errors</button>
+      <button type="button" id="clear" hidden>Clear Done</button>
+    </div>
     <ol id="items"></ol>
 
     <script src="popup.js"></script>

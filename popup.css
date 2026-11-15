@@ -1,121 +1,116 @@
-:root {
-  --ink: #222;
-  --muted: #5c5c5c;
-  --line: #d6d6d6;
-  --bg: #fff;
-  --green: #2a7a3b;
-  --red: #a3000f;
-  --amber: #8a5a00;
-  color-scheme: light dark;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ink: #eee;
-    --muted: #b5b5b5;
-    --line: #4a4a4a;
-    --bg: #2b2a33;
-    --green: #6fcf86;
-    --red: #ff8a8a;
-    --amber: #f0c060;
-  }
-}
+/* After the Wayback Machine's Save Page Now page (web.css): Helvetica Neue,
+   a plain bordered box, the flat gray button and a plain list of options */
 body {
-  width: 400px;
+  width: 380px;
   margin: 0;
-  padding: 0.75rem 0.9rem 1rem;
-  background: var(--bg);
-  color: var(--ink);
-  font: 13px/1.4 system-ui, sans-serif;
+  padding: 14px 16px 16px;
+  background: #fff;
+  color: #222;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
 }
 h1 {
   margin: 0;
-  font-size: 1.05rem;
-}
-header {
-  margin-bottom: 0.6rem;
+  font-size: 18px;
+  font-weight: bold;
 }
 .note {
-  margin: 0.2rem 0 0;
-  color: var(--muted);
-  font-size: 12px;
+  margin: 2px 0 10px;
+  color: #666;
+  font-size: 13px;
 }
-label {
-  display: block;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 textarea {
   box-sizing: border-box;
   width: 100%;
-  height: 6.5rem;
-  margin-top: 0.2rem;
-  font: 12px/1.4 ui-monospace, monospace;
-}
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 0.9rem;
-  align-items: center;
-  margin: 0.5rem 0;
-}
-.row label {
-  display: inline;
+  height: 110px;
+  padding: 4px 4px 4px 10px;
+  border: 1px solid #ccc;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 300;
+  resize: vertical;
 }
 button {
-  padding: 0.3rem 0.75rem;
-  font: inherit;
+  height: 35px;
+  margin: 12px 0 0;
+  padding: 0 16px 2px;
+  border: none;
+  border-radius: 5px;
+  background: #ebebeb;
+  color: #222;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 300;
   cursor: pointer;
 }
-button.primary {
-  font-weight: 600;
+#start {
+  width: 153px;
 }
-details {
-  margin: 0.5rem 0;
-  padding: 0.4rem 0.6rem;
-  border: 1px solid var(--line);
-  border-radius: 4px;
+button:hover:not(:disabled) {
+  background: #cdcdcd;
 }
-summary {
-  cursor: pointer;
-  font-weight: 600;
-}
-fieldset {
-  margin: 0.4rem 0;
-  padding: 0.3rem 0.6rem;
-  border: 1px solid var(--line);
-}
-input[type="number"] {
-  width: 4em;
+button:disabled {
+  cursor: default;
+  opacity: 0.6;
 }
 #summary {
-  margin: 0.4rem 0;
-  font-weight: 600;
+  margin: 8px 0 0;
+}
+#options {
+  margin: 14px 0 0;
+}
+#options label {
+  display: block;
+  margin: 2px 0;
+}
+#options input[type="number"],
+#options input[type="text"] {
+  width: 3.5em;
+  border: 1px solid #ccc;
+  font: inherit;
+}
+#more button {
+  height: 28px;
+  margin-right: 8px;
 }
 ol {
-  max-height: 16rem;
+  max-height: 220px;
   overflow-y: auto;
-  margin: 0;
+  margin: 12px 0 0;
   padding: 0;
   list-style: none;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid #ccc;
+}
+ol:empty {
+  display: none;
 }
 li {
-  padding: 0.3rem 0;
-  border-bottom: 1px solid var(--line);
+  padding: 4px 0;
+  border-bottom: 1px solid #e5e5e5;
+  font-size: 13px;
   word-break: break-all;
 }
 li .status {
   display: block;
   font-size: 12px;
+  color: #666;
 }
 .success,
 .skipped {
-  color: var(--green);
+  color: #2a7a3b !important;
 }
 .error {
-  color: var(--red);
-}
-.working {
-  color: var(--amber);
+  color: #a3000f !important;
 }
 a {
-  color: inherit;
+  color: #428bca;
 }

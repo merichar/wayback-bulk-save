@@ -6,6 +6,7 @@ const KEY = "wbs-state";
 const $ = (id) => document.getElementById(id);
 const send = (msg) => browser.runtime.sendMessage(msg);
 const boxes = [...document.querySelectorAll('#options input[type="checkbox"][name]')];
+let running = false;
 
 function draw(state) {
   if (!state) return;
@@ -18,11 +19,12 @@ function draw(state) {
   const left = items.length - count("success", "skipped", "error");
   $("summary").textContent = items.length
     ? `${count("success")} saved, ${count("skipped")} skipped, ${count("error")} ${count("error") === 1 ? "error" : "errors"}, ${left} to go${state.running ? " (running)" : ""}`
-    : "No addresses yet.";
-  $("start").disabled = state.running || !count("queued");
-  $("stop").disabled = !state.running;
-  $("retry").disabled = !count("error");
-  $("clear").disabled = state.running || !count("success", "skipped", "error");
+    : "";
+  // One button: SAVE PAGES, or STOP while the queue runs
+  running = !!state.running;
+  $("start").textContent = running ? "STOP" : "SAVE PAGES";
+  $("retry").hidden = !count("error");
+  $("clear").hidden = running || !count("success", "skipped", "error");
 
   $("items").replaceChildren(
     ...items.map((it) => {
@@ -57,34 +59,15 @@ for (const b of boxes) b.addEventListener("change", sendOptions);
 $("within").addEventListener("change", sendOptions);
 $("delay").addEventListener("change", sendOptions);
 
-$("add").addEventListener("click", () => {
+$("start").addEventListener("click", async () => {
+  if (running) return send({ type: "stop" });
   const urls = $("list").value.split(/\s+/).filter(Boolean);
-  if (urls.length) send({ type: "add", urls });
-  $("list").value = "";
-});
-$("add-tab").addEventListener("click", async () => {
-  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
-  if (tab?.url) send({ type: "add", urls: [tab.url] });
-});
-$("start").addEventListener("click", () => {
-  const urls = $("list").value.split(/\s+/).filter(Boolean);
-  if (urls.length) send({ type: "add", urls });
+  if (urls.length) await send({ type: "add", urls });
   $("list").value = "";
   send({ type: "start" });
 });
-$("stop").addEventListener("click", () => send({ type: "stop" }));
 $("retry").addEventListener("click", () => send({ type: "retry" }));
 $("clear").addEventListener("click", () => send({ type: "clear" }));
-
-// Keep the options section the way it was left
-$("options").addEventListener("toggle", () => {
-  try {
-    localStorage.setItem("wbs-options-open", $("options").open ? "1" : "");
-  } catch {}
-});
-try {
-  $("options").open = !!localStorage.getItem("wbs-options-open");
-} catch {}
 
 browser.storage.local.get(KEY).then((got) => draw(got[KEY]));
 browser.storage.onChanged.addListener((changes) => {

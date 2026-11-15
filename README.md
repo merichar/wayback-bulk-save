@@ -23,9 +23,8 @@ add-on.
 ## Use It
 
 1. Sign in at archive.org. The popup says whether you're signed in.
-2. Click the toolbar button, paste one address per line and choose Add to
-   List, or choose Add This Page for the current tab.
-3. Set the options and choose Start. The button's badge counts what's left.
+2. Click the toolbar button, paste one address per line, set the options and
+   choose Save Pages. The button's badge counts what's left.
 
 - **Save Outlinks** also saves what each page links to and loads (its
   stylesheets, scripts and images).
@@ -38,16 +37,16 @@ add-on.
   Now limits how fast one account can save; if it asks to slow down, the
   add-on waits and tries again.
 
-Stop pauses the queue; Start resumes it. Retry Errors puts failed addresses
-back in the queue, and Clear Done removes finished ones.
+While it runs, the button reads Stop; choosing Save Pages again resumes. Retry
+Errors puts failed addresses back in the queue, and Clear Done removes
+finished ones.
 
 ## Privacy
 
 The add-on talks only to web.archive.org (Save Page Now and My Web Archive)
 with your own signed-in session, and reads archive.org's sign-in cookie to
 show whether you're signed in. It keeps the list and results in the
-browser's extension storage, and reads the current tab's address only when
-you choose Add This Page. It collects nothing and sends nothing anywhere
+browser's extension storage. It collects nothing and sends nothing anywhere
 else.
 
 ## Be Kind to Save Page Now

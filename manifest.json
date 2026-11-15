@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Wayback Bulk Save",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Saves a list of addresses to the Wayback Machine one at a time, from a toolbar button. Unofficial; not made by the Internet Archive.",
   "homepage_url": "https://github.com/merichar/wayback-bulk-save",
   "icons": {
@@ -14,13 +14,14 @@
     "default_popup": "popup.html"
   },
   "background": {
-    "scripts": ["background.js"],
+    "scripts": [
+      "background.js"
+    ],
     "persistent": true
   },
   "permissions": [
     "storage",
     "cookies",
-    "activeTab",
     "https://web.archive.org/*",
     "https://archive.org/*"
   ],
@@ -29,7 +30,9 @@
       "id": "wayback-bulk-save@merichar",
       "strict_min_version": "115.0",
       "data_collection_permissions": {
-        "required": ["none"]
+        "required": [
+          "none"
+        ]
       }
     }
   }
