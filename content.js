@@ -15,12 +15,15 @@
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const save = () => store.set({ [KEY]: state });
 
-  // The panel
-  const panel = document.createElement("section");
+  // The panel: a collapsible under the Save form's address box (or at the
+  // top of the page if the form isn't there). It sits inside the form, so its
+  // fields have no names (the form doesn't send them) and Enter in them
+  // doesn't submit the form.
+  const panel = document.createElement("details");
   panel.id = "wbs-panel";
   panel.innerHTML = `
-    <h2>Wayback Bulk Save</h2>
-    <p>Paste one address per line. Each is saved in turn with your signed-in session and the options checked in the Save form above, which are remembered; the next starts after the last capture finishes and the pause.</p>
+    <summary>Save a List of Addresses</summary>
+    <p>Paste one address per line. Each is saved in turn with your signed-in session and the options checked below, which are remembered; the next starts after the last capture finishes and the pause.</p>
     <textarea id="wbs-list" spellcheck="false" placeholder="https://www.example.edu/page.html"></textarea>
     <div class="wbs-row">
       <label><input type="checkbox" id="wbs-mine"> Also Save in My Web Archive</label>
@@ -35,12 +38,17 @@
       <span id="wbs-summary" role="status"></span>
     </div>
     <table><thead><tr><th>Address</th><th>Status</th></tr></thead><tbody id="wbs-rows"></tbody></table>`;
-  // Below the Save form's row (the form is in #web_save_div, in a centered
-  // .row); at the top of the page if the form isn't there
   const saveForm = document.getElementById("web-save-form");
-  const anchor = saveForm && (saveForm.closest(".row") || document.getElementById("web_save_div"));
-  if (anchor) anchor.after(panel);
+  const urlBox = document.getElementById("web-save-url-input");
+  if (urlBox) urlBox.after(panel);
   else document.body.prepend(panel);
+  panel.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.tagName === "INPUT") e.preventDefault();
+  });
+  panel.addEventListener("toggle", () => {
+    state.open = panel.open;
+    save();
+  });
   const $ = (id) => panel.querySelector("#" + id);
 
   function render() {
@@ -269,6 +277,7 @@
     if (got[KEY]) state = got[KEY];
     // Anything mid-flight when the page closed goes back in the queue
     for (const i of state.items) if (!["success", "error", "queued"].includes(i.status)) i.status = "queued";
+    panel.open = !!state.open || state.items.some((i) => i.status !== "success");
     showOptions();
     render();
   });

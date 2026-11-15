@@ -1,7 +1,7 @@
 # Wayback Bulk Save
 
 A small Firefox add-on that saves a list of addresses to the Wayback Machine
-one at a time. It adds a panel to https://web.archive.org/save and submits
+one at a time. It adds a collapsible "Save a List of Addresses" under the address box on https://web.archive.org/save and submits
 each address with your signed-in session, waits for that capture to finish,
 pauses, then moves to the next. The list and each address's result are kept,
 so a reload or a closed tab picks up where it stopped.
@@ -22,7 +22,8 @@ add-on.
 ## Use It
 
 1. Sign in at archive.org.
-2. Open https://web.archive.org/save. The panel is at the top.
+2. Open https://web.archive.org/save and open Save a List of Addresses under
+   the address box.
 3. Paste one address per line, set the options and choose Start.
 
 - **Save Outlinks** also saves what each page links to and loads (its
