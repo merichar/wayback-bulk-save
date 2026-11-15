@@ -1,7 +1,6 @@
 # Built and signed packages (web-ext build, web-ext sign, downloads from AMO)
 web-ext-artifacts/
 *.xpi
-*.zip
 # web-ext sign's credentials and its upload record
 .amo-upload-uuid
 .env
