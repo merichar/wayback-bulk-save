@@ -59,11 +59,22 @@ for (const b of boxes) b.addEventListener("change", sendOptions);
 $("within").addEventListener("change", sendOptions);
 $("delay").addEventListener("change", sendOptions);
 
+// Adds what's in the box, says what happened, then starts. Lines that
+// aren't web addresses stay in the box.
 $("start").addEventListener("click", async () => {
   if (running) return send({ type: "stop" });
-  const urls = $("list").value.split(/\s+/).filter(Boolean);
-  if (urls.length) await send({ type: "add", urls });
-  $("list").value = "";
+  const lines = $("list").value.split(/\s+/).filter(Boolean);
+  if (lines.length) {
+    const r = await send({ type: "add", urls: lines });
+    const said = [];
+    if (r.added) said.push(`Added ${r.added}`);
+    if (r.again) said.push(`queued ${r.again} again`);
+    if (r.already) said.push(`${r.already} already in the queue`);
+    if (r.bad.length) said.push(`${r.bad.length} not a web address (left in the box)`);
+    $("message").textContent = said.join(", ") + ".";
+    $("list").value = r.bad.join("\n");
+    if (!r.added && !r.again) return;
+  }
   send({ type: "start" });
 });
 // Closes only the dialog window the add-on opened (the background script

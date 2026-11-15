@@ -53,6 +53,22 @@ async function signedIn() {
   return cookies.some((c) => c.name === "logged-in-sig" && c.value);
 }
 
+// "merichar.org" or "www.cmu.edu/page" become https:// addresses; anything
+// that isn't a web address gives null
+function normalize(raw) {
+  let text = String(raw).trim();
+  if (!text) return null;
+  if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(text)) text = "https://" + text;
+  try {
+    const u = new URL(text);
+    if (!["http:", "https:"].includes(u.protocol)) return null;
+    if (!u.hostname.includes(".") && u.hostname !== "localhost") return null;
+    return u.href;
+  } catch {
+    return null;
+  }
+}
+
 async function submit(url) {
   const body = new URLSearchParams();
   for (const [name, on] of Object.entries(state.form)) {
@@ -194,15 +210,26 @@ browser.runtime.onMessage.addListener(async (msg) => {
   switch (msg.type) {
     case "add": {
       // A new address joins the queue; one that already finished (saved,
-      // skipped or failed) goes back in it for another save
-      for (const url of msg.urls) {
-        if (!/^https?:\/\//i.test(url)) continue;
+      // skipped or failed) goes back in it for another save. Answers with
+      // what happened, so the dialog can say so.
+      const result = { added: 0, again: 0, already: 0, bad: [] };
+      for (const raw of msg.urls) {
+        const url = normalize(raw);
+        if (!url) {
+          result.bad.push(raw);
+          continue;
+        }
         const old = state.items.find((i) => i.url === url);
-        if (!old) state.items.push({ url, status: "queued" });
-        else if (["success", "skipped", "error"].includes(old.status))
+        if (!old) {
+          state.items.push({ url, status: "queued" });
+          result.added++;
+        } else if (["success", "skipped", "error"].includes(old.status)) {
           Object.assign(old, { status: "queued", message: "", timestamp: undefined, job: undefined });
+          result.again++;
+        } else result.already++;
       }
-      break;
+      await update();
+      return result;
     }
     case "options":
       Object.assign(state, { form: { ...state.form, ...msg.form }, within: msg.within, delay: msg.delay });
