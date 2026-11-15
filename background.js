@@ -198,4 +198,23 @@ browser.runtime.onMessage.addListener(async (msg) => {
   await update();
 });
 
+// The toolbar button opens the dialog as its own small window (a desktop
+// window, so its corners are square), or brings it forward if it's open
+let dialog = null;
+browser.browserAction.onClicked.addListener(async () => {
+  if (dialog !== null) {
+    try {
+      await browser.windows.update(dialog, { focused: true });
+      return;
+    } catch {
+      dialog = null;
+    }
+  }
+  const win = await browser.windows.create({ url: "popup.html", type: "popup", width: 430, height: 680 });
+  dialog = win.id;
+});
+browser.windows.onRemoved.addListener((id) => {
+  if (id === dialog) dialog = null;
+});
+
 load().then(update);

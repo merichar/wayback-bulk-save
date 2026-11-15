@@ -66,7 +66,10 @@ $("start").addEventListener("click", async () => {
   $("list").value = "";
   send({ type: "start" });
 });
-$("close").addEventListener("click", () => window.close());
+$("close").addEventListener("click", async () => {
+  const win = await browser.windows.getCurrent();
+  browser.windows.remove(win.id);
+});
 $("retry").addEventListener("click", () => send({ type: "retry" }));
 $("clear").addEventListener("click", () => send({ type: "clear" }));
 
