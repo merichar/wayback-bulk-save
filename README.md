@@ -37,7 +37,7 @@ add-on.
   Now limits how fast one account can save; if it asks to slow down, the
   add-on waits and tries again.
 
-While it runs, the button reads Stop; choosing Save Pages again resumes. Retry
+While it runs, Save Pages reads Stop; choosing Save Pages again resumes. Retry
 Errors puts failed addresses back in the queue, and Clear Done removes
 finished ones.
 

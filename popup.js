@@ -19,10 +19,10 @@ function draw(state) {
   const left = items.length - count("success", "skipped", "error");
   $("summary").textContent = items.length
     ? `${count("success")} saved, ${count("skipped")} skipped, ${count("error")} ${count("error") === 1 ? "error" : "errors"}, ${left} to go${state.running ? " (running)" : ""}`
-    : "";
+    : "Ready";
   // One button: SAVE PAGES, or STOP while the queue runs
   running = !!state.running;
-  $("start").textContent = running ? "STOP" : "SAVE PAGES";
+  $("start").textContent = running ? "Stop" : "Save Pages";
   $("retry").hidden = !count("error");
   $("clear").hidden = running || !count("success", "skipped", "error");
 
@@ -66,6 +66,7 @@ $("start").addEventListener("click", async () => {
   $("list").value = "";
   send({ type: "start" });
 });
+$("close").addEventListener("click", () => window.close());
 $("retry").addEventListener("click", () => send({ type: "retry" }));
 $("clear").addEventListener("click", () => send({ type: "clear" }));
 
