@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Wayback Bulk Save",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Saves a list of addresses to the Wayback Machine one at a time, from a toolbar button. Unofficial; not made by the Internet Archive.",
   "homepage_url": "https://github.com/merichar/wayback-bulk-save",
   "icons": {
