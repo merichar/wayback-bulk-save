@@ -9,6 +9,8 @@ Paste the addresses, choose Save Pages and close the window if you like. The
 queue keeps going in the background, and the toolbar button's badge counts
 what's left. Each page gets a link to its new snapshot when it's done.
 
+<img src="images/badge.png" alt="Wayback Bulk Save in Firefox's Extensions menu, its badge showing 241 pages left." width="414">
+
 It's unofficial: not made by or affiliated with the Internet Archive. The
 Wayback Machine's own extension used to have a Bulk Save page, but it's
 gone.
