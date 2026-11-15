@@ -1,0 +1,12 @@
+{
+  "addons": {
+    "wayback-bulk-save@merichar": {
+      "updates": [
+        {
+          "version": "0.5.1",
+          "update_link": "https://github.com/merichar/wayback-bulk-save/releases/download/0.5.1/wayback_bulk_save-0.5.1.xpi"
+        }
+      ]
+    }
+  }
+}
