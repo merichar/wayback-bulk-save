@@ -100,16 +100,26 @@ async function submit(url) {
   // Saved recently: Save Page Now says so in the message, with or without a
   // job id ("The same snapshot had been made 51 minutes ago. You can make a
   // new capture of this URL after 1 hour."), and no new capture happens
-  if (json.message && /same snapshot|already been captured|after \d+ (hour|minute)/i.test(json.message))
-    return { skipped: json.message };
+  if (savedRecently(json)) return { skipped: json.message };
   if (json.job_id) return { job: json.job_id, note: json.message };
   if (dailyLimit(json)) return { daily: json.message || "Save Page Now's daily limit for this account" };
   return { error: json.message || `HTTP ${res.status}, no capture started` };
 }
 
-// Save Page Now's answer when the account has used up today's captures
+// This page was saved recently, or has hit its own daily limit ("This URL
+// has been already captured 10 times today"); counted across all users, so
+// skip just this page
+function savedRecently(json) {
+  const m = json.message || "";
+  return /same snapshot|already been captured|been already captured|captured \d+ times? today|after \d+ (hour|minute)/i.test(m);
+}
+
+// The account has used up today's captures (resets at midnight UTC); stop
 function dailyLimit(json) {
-  return /daily|too-many-daily|captures today|tomorrow/i.test(`${json.status_ext || ""} ${json.message || ""}`);
+  return (
+    /too-many-daily-captures/i.test(json.status_ext || "") ||
+    /daily captures|limit of daily|daily limit/i.test(json.message || "")
+  );
 }
 
 async function watch(job) {
@@ -134,6 +144,7 @@ async function watch(job) {
     if (res.status === 401) return { error: "Signed out; sign in at archive.org, then Retry Errors" };
     const s = await res.json().catch(() => ({}));
     if (s.status === "success") return { timestamp: s.timestamp };
+    if (s.status === "error" && savedRecently(s)) return { skipped: s.message };
     if (s.status === "error" && dailyLimit(s)) return { daily: s.message || s.status_ext };
     if (s.status === "error") return { error: s.message || s.status_ext || "Capture failed" };
   }
@@ -215,7 +226,8 @@ async function runQueue() {
       if (w.daily) {
         Object.assign(item, { status: "queued", message: `Stopped: ${w.daily}` });
         running = false;
-      } else if (w.stopped) item.status = "queued";
+      } else if (w.skipped) Object.assign(item, { status: "skipped", message: w.skipped });
+      else if (w.stopped) item.status = "queued";
       else if (w.error) Object.assign(item, { status: "error", message: w.error });
       else {
         Object.assign(item, { status: "success", timestamp: w.timestamp, message: "" });
