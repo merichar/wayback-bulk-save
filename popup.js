@@ -17,7 +17,7 @@ function draw(state) {
   const count = (...st) => items.filter((i) => st.includes(i.status)).length;
   const left = items.length - count("success", "skipped", "error");
   $("summary").textContent = items.length
-    ? `${count("success")} saved, ${count("skipped")} skipped, ${count("error")} errors, ${left} to go${state.running ? " (running)" : ""}`
+    ? `${count("success")} saved, ${count("skipped")} skipped, ${count("error")} ${count("error") === 1 ? "error" : "errors"}, ${left} to go${state.running ? " (running)" : ""}`
     : "No addresses yet.";
   $("start").disabled = state.running || !count("queued");
   $("stop").disabled = !state.running;
