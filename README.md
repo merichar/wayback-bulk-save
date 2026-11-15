@@ -1,10 +1,11 @@
 # Wayback Bulk Save
 
 A small Firefox add-on that saves a list of addresses to the Wayback Machine
-one at a time. It adds a collapsible "Save a List of Addresses" under the address box on https://web.archive.org/save and submits
-each address with your signed-in session, waits for that capture to finish,
-pauses, then moves to the next. The list and each address's result are kept,
-so a reload or a closed tab picks up where it stopped.
+one at a time. Its toolbar button opens a popup with the list and Save Page
+Now's options; it submits each address with your signed-in archive.org
+session, waits for that capture to finish, pauses, then moves to the next.
+The queue runs in the background, so you can close the popup, and the list
+and results are kept if Firefox restarts.
 
 It's unofficial: not made by or affiliated with the Internet Archive. The
 Wayback Machine's own extension once had a Bulk Save page; it's no longer
@@ -21,29 +22,33 @@ add-on.
 
 ## Use It
 
-1. Sign in at archive.org.
-2. Open https://web.archive.org/save and open Save a List of Addresses under
-   the address box.
-3. Paste one address per line, set the options and choose Start.
+1. Sign in at archive.org. The popup says whether you're signed in.
+2. Click the toolbar button, paste one address per line and choose Add to
+   List, or choose Add This Page for the current tab.
+3. Set the options and choose Start. The button's badge counts what's left.
 
 - **Save Outlinks** also saves what each page links to and loads (its
   stylesheets, scripts and images).
 - **Save Error Pages** saves a page even if it answers with an error.
+- **Also Save in My Web Archive** adds each snapshot to your My Web Archive.
+- **Email Me the Results** and the WACZ file send one email per address.
 - **Skip if Saved Within** skips anything saved recently, such as `1d` or
   `12h`.
 - **Pause** is the wait between captures, 20 seconds by default. Save Page
   Now limits how fast one account can save; if it asks to slow down, the
-  add-on waits a minute and tries again.
+  add-on waits and tries again.
 
 Stop pauses the queue; Start resumes it. Retry Errors puts failed addresses
-back in the queue.
+back in the queue, and Clear Done removes finished ones.
 
 ## Privacy
 
-The add-on only runs on https://web.archive.org/save. It sends your list to
-Save Page Now with your own signed-in session, exactly as the Save form
-would, and keeps the list and results in the browser's extension storage. It
-collects nothing and sends nothing anywhere else.
+The add-on talks only to web.archive.org (Save Page Now and My Web Archive)
+with your own signed-in session, and reads archive.org's sign-in cookie to
+show whether you're signed in. It keeps the list and results in the
+browser's extension storage, and reads the current tab's address only when
+you choose Add This Page. It collects nothing and sends nothing anywhere
+else.
 
 ## Be Kind to Save Page Now
 

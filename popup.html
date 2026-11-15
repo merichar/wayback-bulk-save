@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Wayback Bulk Save</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Wayback Bulk Save</h1>
+      <p id="signin" class="note"></p>
+    </header>
+
+    <label for="list">Addresses, One per Line</label>
+    <textarea id="list" spellcheck="false" placeholder="https://www.example.edu/page.html"></textarea>
+    <div class="row">
+      <button type="button" id="add">Add to List</button>
+      <button type="button" id="add-tab">Add This Page</button>
+    </div>
+
+    <details id="options">
+      <summary>Options</summary>
+      <fieldset>
+        <legend>Save Page Now</legend>
+        <label><input type="checkbox" name="capture_outlinks" /> Save Outlinks</label>
+        <label><input type="checkbox" name="capture_all" /> Save Error Pages (4xx, 5xx)</label>
+        <label><input type="checkbox" name="capture_screenshot" /> Save Screenshot</label>
+        <label><input type="checkbox" name="disable_adblocker" /> Disable Ad Blocker</label>
+        <label><input type="checkbox" name="wm-save-mywebarchive" /> Also Save in My Web Archive</label>
+        <label><input type="checkbox" name="email_result" /> Email Me the Results</label>
+        <label><input type="checkbox" name="wacz" /> Email Me a WACZ File</label>
+      </fieldset>
+      <div class="row">
+        <label>Skip if Saved Within <input type="text" id="within" size="4" placeholder="1d" /></label>
+        <label>Pause <input type="number" id="delay" min="5" step="1" /> Seconds</label>
+      </div>
+      <p class="note">Email options send one email per address.</p>
+    </details>
+
+    <div class="row">
+      <button type="button" id="start" class="primary">Start</button>
+      <button type="button" id="stop">Stop</button>
+      <button type="button" id="retry">Retry Errors</button>
+      <button type="button" id="clear">Clear Done</button>
+    </div>
+    <p id="summary" role="status"></p>
+    <ol id="items"></ol>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
