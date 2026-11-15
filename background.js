@@ -64,6 +64,7 @@ async function submit(url) {
   const res = await fetch(HOST + "save/", {
     method: "POST",
     credentials: "include",
+    signal: AbortSignal.timeout(60000),
     headers: { Accept: "application/json", "Content-Type": "application/x-www-form-urlencoded" },
     body,
   });
@@ -77,7 +78,10 @@ async function submit(url) {
     const job = (text.match(/spn2-[a-z0-9-]+/) || [])[0];
     return job ? { job } : { error: `HTTP ${res.status}, no capture started` };
   }
-  if (json.message && /same snapshot|within the last|already/i.test(json.message) && !json.job_id)
+  // Saved recently: Save Page Now says so in the message, with or without a
+  // job id ("The same snapshot had been made 51 minutes ago. You can make a
+  // new capture of this URL after 1 hour."), and no new capture happens
+  if (json.message && /same snapshot|already been captured|after \d+ (hour|minute)/i.test(json.message))
     return { skipped: json.message };
   if (json.job_id) return { job: json.job_id, note: json.message };
   return { error: json.message || `HTTP ${res.status}, no capture started` };
@@ -87,10 +91,18 @@ async function watch(job) {
   let wait = 6000;
   for (let i = 0; i < 150 && running; i++) {
     await sleep(wait);
-    const res = await fetch(`${HOST}save/status/${job}?_t=${Date.now()}`, {
-      credentials: "include",
-      headers: { Accept: "application/json" },
-    });
+    let res;
+    try {
+      res = await fetch(`${HOST}save/status/${job}?_t=${Date.now()}`, {
+        credentials: "include",
+        headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(30000),
+      });
+    } catch {
+      // A dropped connection or a slow answer: check again next time
+      wait = 10000;
+      continue;
+    }
     const retry = Number(res.headers.get("Retry-After"));
     wait = retry ? retry * 1000 : 6000;
     if (res.status === 429) continue;
@@ -107,6 +119,7 @@ async function addToMine(url, timestamp) {
     const res = await fetch(HOST + "__wb/web-archive", {
       method: "POST",
       credentials: "include",
+      signal: AbortSignal.timeout(30000),
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       body: JSON.stringify({ url, snapshot: timestamp, tags: [] }),
     });
@@ -119,6 +132,19 @@ async function addToMine(url, timestamp) {
 async function run() {
   if (running) return;
   running = true;
+  try {
+    await runQueue();
+  } catch (e) {
+    console.error("Wayback Bulk Save stopped:", e);
+  } finally {
+    // Whatever happens, the queue isn't left marked as running
+    running = false;
+    for (const i of state.items) if (["submitting", "capturing", "waiting"].includes(i.status)) i.status = "queued";
+    await update();
+  }
+}
+
+async function runQueue() {
   await update();
   for (const item of state.items) {
     if (!running) break;
@@ -161,20 +187,21 @@ async function run() {
     await update();
     if (running && state.items.some((i) => i.status === "queued")) await sleep(Math.max(5, state.delay) * 1000);
   }
-  running = false;
-  await update();
 }
 
 // Messages from the popup
 browser.runtime.onMessage.addListener(async (msg) => {
   switch (msg.type) {
     case "add": {
-      const seen = new Set(state.items.map((i) => i.url));
-      for (const url of msg.urls)
-        if (/^https?:\/\//i.test(url) && !seen.has(url)) {
-          state.items.push({ url, status: "queued" });
-          seen.add(url);
-        }
+      // A new address joins the queue; one that already finished (saved,
+      // skipped or failed) goes back in it for another save
+      for (const url of msg.urls) {
+        if (!/^https?:\/\//i.test(url)) continue;
+        const old = state.items.find((i) => i.url === url);
+        if (!old) state.items.push({ url, status: "queued" });
+        else if (["success", "skipped", "error"].includes(old.status))
+          Object.assign(old, { status: "queued", message: "", timestamp: undefined, job: undefined });
+      }
       break;
     }
     case "options":
