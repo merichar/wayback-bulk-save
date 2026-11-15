@@ -246,7 +246,7 @@ browser.browserAction.onClicked.addListener(async () => {
       dialog = null;
     }
   }
-  const win = await browser.windows.create({ url: "popup.html", type: "popup", width: 470, height: 760 });
+  const win = await browser.windows.create({ url: "popup.html", type: "popup", width: 520, height: 820 });
   dialog = win.id;
 });
 browser.windows.onRemoved.addListener((id) => {
