@@ -80,7 +80,8 @@ The add-on remembers your choices. These options are passed to Save Page Now:
 **Wait between saves** starts at 20 seconds, the shortest it allows, so the
 add-on doesn't overwhelm Save Page Now. If the service asks it to slow down,
 it waits a minute, then two, then four. If your account reaches Save Page
-Now's daily limit, the queue stops and the page goes back in the queue.
+Now's daily limit, the queue pauses and picks up again at 00:10 UTC, after
+the limit resets. Stop cancels that.
 
 ## Privacy
 

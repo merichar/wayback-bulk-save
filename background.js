@@ -23,7 +23,7 @@ const FORM_OPTIONS = {
 // The shortest wait between saves, and the default; Save Page Now is a free
 // service, so the add-on never goes faster than this
 const MIN_DELAY = 20;
-const DEFAULTS = { items: [], form: { ...FORM_OPTIONS }, within: "", delay: MIN_DELAY, running: false };
+const DEFAULTS = { items: [], form: { ...FORM_OPTIONS }, within: "", delay: MIN_DELAY, running: false, resumeAt: null };
 
 let state = { ...DEFAULTS };
 // The dialog window's id, once the toolbar button has opened it
@@ -166,6 +166,29 @@ async function addToMine(url, timestamp) {
   }
 }
 
+// After the account's daily limit: resume at 00:10 UTC, ten minutes after
+// Save Page Now's limit resets, if anything is still queued. The time is
+// kept in storage, so a Firefox restart in between still resumes.
+function scheduleResume() {
+  const next = new Date();
+  next.setUTCHours(24, 10, 0, 0);
+  state.resumeAt = next.getTime();
+  browser.alarms.create("resume", { when: state.resumeAt });
+}
+function cancelResume() {
+  state.resumeAt = null;
+  browser.alarms.clear("resume");
+}
+function resumeIfDue() {
+  if (!state.resumeAt || Date.now() < state.resumeAt) return;
+  cancelResume();
+  if (state.items.some((i) => i.status === "queued")) run();
+  else update();
+}
+browser.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "resume") resumeIfDue();
+});
+
 async function run() {
   if (running) return;
   running = true;
@@ -208,8 +231,9 @@ async function runQueue() {
       }
       // Today's limit is used up: put the page back and stop the queue
       if (r.daily) {
-        Object.assign(item, { status: "queued", message: `Stopped: ${r.daily}` });
+        Object.assign(item, { status: "queued", message: `Paused: ${r.daily}` });
         running = false;
+        scheduleResume();
         break;
       }
       if (r.skipped) {
@@ -224,8 +248,9 @@ async function runQueue() {
       await update();
       const w = await watch(r.job);
       if (w.daily) {
-        Object.assign(item, { status: "queued", message: `Stopped: ${w.daily}` });
+        Object.assign(item, { status: "queued", message: `Paused: ${w.daily}` });
         running = false;
+        scheduleResume();
       } else if (w.skipped) Object.assign(item, { status: "skipped", message: w.skipped });
       else if (w.stopped) item.status = "queued";
       else if (w.error) Object.assign(item, { status: "error", message: w.error });
@@ -270,10 +295,12 @@ browser.runtime.onMessage.addListener(async (msg) => {
       Object.assign(state, { form: { ...state.form, ...msg.form }, within: msg.within, delay: msg.delay });
       break;
     case "start":
+      cancelResume();
       run();
       return;
     case "stop":
       running = false;
+      cancelResume();
       break;
     case "retry":
       for (const i of state.items) if (i.status === "error") Object.assign(i, { status: "queued", message: "" });
@@ -315,4 +342,10 @@ browser.windows.onRemoved.addListener((id) => {
   if (id === dialog) dialog = null;
 });
 
-load().then(update);
+load().then(() => {
+  update();
+  // A resume that came due while Firefox was closed runs now; one still
+  // ahead gets its alarm back
+  if (state.resumeAt && Date.now() >= state.resumeAt) resumeIfDue();
+  else if (state.resumeAt) browser.alarms.create("resume", { when: state.resumeAt });
+});

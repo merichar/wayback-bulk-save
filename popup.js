@@ -18,7 +18,13 @@ function draw(state) {
   const count = (...st) => items.filter((i) => st.includes(i.status)).length;
   const left = items.length - count("success", "skipped", "error");
   $("summary").textContent = items.length
-    ? `${count("success")} saved, ${count("skipped")} skipped, ${count("error")} ${count("error") === 1 ? "error" : "errors"}, ${left} to go${state.running ? " (running)" : ""}`
+    ? `${count("success")} saved, ${count("skipped")} skipped, ${count("error")} ${count("error") === 1 ? "error" : "errors"}, ${left} to go${
+        state.running
+          ? " (running)"
+          : state.resumeAt
+            ? `, resuming ${new Date(state.resumeAt).toLocaleString([], { weekday: "short", hour: "numeric", minute: "2-digit" })}`
+            : ""
+      }`
     : "Ready";
   // One button: SAVE PAGES, or STOP while the queue runs
   running = !!state.running;
