@@ -1,66 +1,92 @@
 # Wayback Bulk Save
 
-A Firefox add-on that saves a list of pages to the Wayback Machine, one at a
-time, with your archive.org account.
+Save a list of web pages to the Wayback Machine with your archive.org account.
+Paste addresses or import a file, choose **Save Pages** and let the queue run.
+The add-on saves one page at a time and links to each snapshot when it's ready.
 
-<img src="images/screenshot.png" alt="The Wayback Bulk Save window: an address box, the Save Pages button, Save Page Now's options and a queue showing https://merichar.org saved." width="474">
+![The Wayback Bulk Save window, with an address box, capture options and a queue of pages to save.](images/screenshot.png)
 
-Paste the addresses, choose Save Pages and close the window if you like. The
-queue keeps going in the background, and the toolbar button's badge counts
-what's left. Each page gets a link to its new snapshot when it's done.
+This is an unofficial Firefox add-on, not made by or affiliated with the
+Internet Archive.
 
-<img src="images/badge.png" alt="Wayback Bulk Save in Firefox's Extensions menu, its badge showing 241 pages left." width="414">
+## Install
 
-It's unofficial: not made by or affiliated with the Internet Archive. The
-Wayback Machine's own extension used to have a Bulk Save page, but it's
-gone.
+Requires Firefox 115 or later and an archive.org account.
 
-## Load It
+### Install the Signed XPI
 
-1. In Firefox, open `about:debugging#/runtime/this-firefox`.
-2. Choose Load Temporary Add-on and pick this folder's `manifest.json`.
+Use this option when you have a signed `.xpi` file.
 
-A temporary add-on lasts until Firefox restarts.
+1. Save the signed `.xpi` file to your computer.
+2. In Firefox, open `about:addons` and select **Extensions**.
+3. Open the gear menu and choose **Install Add-on From File...**.
+4. Select the `.xpi` file and confirm the installation.
 
-## Use It
+The installed add-on stays available when Firefox restarts.
 
-1. Sign in at archive.org. The window says whether you're signed in.
-2. Click the toolbar button, paste one address per line and choose Save
-   Pages. Addresses without `https://` are fine.
+### Load for Development
 
-Open List... loads a text or CSV file of addresses into the box, and you can
-also drop a file on the box. You'll see them before choosing Save Pages.
+1. Download or clone this repository.
+2. In Firefox, open `about:debugging#/runtime/this-firefox`.
+3. Choose **Load Temporary Add-on** and select `manifest.json` from this
+   folder.
 
-A line under the buttons says what was added. Anything that isn't a web
-address stays in the box. While the queue runs, Save Pages reads Stop.
+This loads the source directly, without a signed XPI. Firefox removes the
+temporary add-on when it restarts. Repeat these steps to load it again.
 
-The options are Save Page Now's own, and the add-on remembers them:
+## Save Pages
 
-- **Save outlinks** also saves what each page links to and loads, such as its
-  stylesheets, scripts and images.
-- **Save error pages** saves a page even if it answers with an error.
-- **Save also in my web archive** adds each snapshot to your My Web Archive.
-- **Email me the results** and the WACZ file send one email per address.
-- **Skip if saved within** skips pages saved recently, such as `1d` or `12h`.
-- **Wait between saves** is 20 seconds to start.
+1. Sign in at [archive.org](https://archive.org/).
+2. Click the Wayback Bulk Save toolbar button. The window shows whether
+   you're signed in.
+3. Paste one address per line, or choose **Open List...** to import a text,
+   CSV or TSV file. You can also drop a file onto the address box.
+4. Review the addresses and options, then choose **Save Pages**.
 
-A page saved in the last hour shows as skipped, with Save Page Now's note
-about when you can save it again. Retry Errors puts failed pages back in the
-queue, and Clear Done removes finished ones.
+Addresses without `https://` are accepted. Imported addresses appear in the
+box for review before anything is saved. Entries that aren't web addresses
+stay in the box when you start the queue.
 
-## Be Kind to Save Page Now
+## Follow the Queue
 
-Save Page Now is free and limits how fast one account can save. Keep the wait
-at 20 seconds or more. If it asks the add-on to slow down, the add-on waits
-and tries again.
+You can close the add-on's window while the queue runs. Keep Firefox open.
+The toolbar badge shows how many pages remain. Open the window again to
+check progress and follow links to completed snapshots.
+
+![The add-on's badge in Firefox's Extensions menu, showing 241 pages remaining.](images/badge.png)
+
+- **Stop** pauses the queue. Choose **Save Pages** to continue.
+- **Retry Errors** puts failed pages back in the queue.
+- **Clear Done** removes saved, skipped and failed entries from the list.
+
+Save Page Now may skip a page it has archived recently. The queue shows its
+explanation, including when another capture is allowed.
+
+## Choose Capture Options
+
+The add-on remembers your choices. These options are passed to Save Page Now:
+
+| Option | What It Does |
+| --- | --- |
+| **Save outlinks** | Also requests captures of links found on each page. |
+| **Save error pages** | Saves pages that return HTTP errors. Enabled by default. |
+| **Save screenshot** | Requests a screenshot with the capture. |
+| **Disable ad blocker** | Turns off Save Page Now's ad blocker for the capture. |
+| **Save also in my web archive** | Adds each snapshot to your My Web Archive collection. |
+| **Email me the results** | Requests a results email for each address. |
+| **Email me a WACZ file with the results** | Requests a downloadable archive by email for each address. |
+| **Skip if saved within** | Skips pages archived within a period such as `1d` or `12h`. |
+
+**Wait between saves** starts at 20 seconds. Keep it at 20 seconds or more
+to avoid overwhelming Save Page Now. If the service asks the add-on to slow
+down, it waits and retries.
 
 ## Privacy
 
-The add-on talks only to web.archive.org, with your own signed-in session. It
-reads archive.org's sign-in cookie only to show whether you're signed in, and
-keeps your list in Firefox's extension storage. It collects nothing and
-sends nothing anywhere else.
+No tracking. No analytics. The add-on sends data only to the Internet Archive,
+using your signed-in session. It reads archive.org's sign-in cookie to show
+whether you're signed in. Your queue and settings stay in Firefox.
 
 ## License
 
-MIT
+[MIT](LICENSE)
