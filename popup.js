@@ -53,7 +53,7 @@ function sendOptions() {
     type: "options",
     form: Object.fromEntries(boxes.map((b) => [b.name, b.checked])),
     within: $("within").value.trim(),
-    delay: Math.max(5, Number($("delay").value) || 20),
+    delay: Math.max(20, Number($("delay").value) || 20),
   });
 }
 for (const b of boxes) b.addEventListener("change", sendOptions);

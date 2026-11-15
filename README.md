@@ -77,9 +77,10 @@ The add-on remembers your choices. These options are passed to Save Page Now:
 | **Email me a WACZ file with the results** | Requests a downloadable archive by email for each address. |
 | **Skip if saved within** | Skips pages archived within a period such as `1d` or `12h`. |
 
-**Wait between saves** starts at 20 seconds. Keep it at 20 seconds or more
-to avoid overwhelming Save Page Now. If the service asks the add-on to slow
-down, it waits and retries.
+**Wait between saves** starts at 20 seconds, the shortest it allows, so the
+add-on doesn't overwhelm Save Page Now. If the service asks it to slow down,
+it waits a minute, then two, then four. If your account reaches Save Page
+Now's daily limit, the queue stops and the page goes back in the queue.
 
 ## Privacy
 

@@ -20,7 +20,10 @@ const FORM_OPTIONS = {
   email_result: false,
   wacz: false,
 };
-const DEFAULTS = { items: [], form: { ...FORM_OPTIONS }, within: "", delay: 20, running: false };
+// The shortest wait between saves, and the default; Save Page Now is a free
+// service, so the add-on never goes faster than this
+const MIN_DELAY = 20;
+const DEFAULTS = { items: [], form: { ...FORM_OPTIONS }, within: "", delay: MIN_DELAY, running: false };
 
 let state = { ...DEFAULTS };
 // The dialog window's id, once the toolbar button has opened it
@@ -100,7 +103,13 @@ async function submit(url) {
   if (json.message && /same snapshot|already been captured|after \d+ (hour|minute)/i.test(json.message))
     return { skipped: json.message };
   if (json.job_id) return { job: json.job_id, note: json.message };
+  if (dailyLimit(json)) return { daily: json.message || "Save Page Now's daily limit for this account" };
   return { error: json.message || `HTTP ${res.status}, no capture started` };
+}
+
+// Save Page Now's answer when the account has used up today's captures
+function dailyLimit(json) {
+  return /daily|too-many-daily|captures today|tomorrow/i.test(`${json.status_ext || ""} ${json.message || ""}`);
 }
 
 async function watch(job) {
@@ -125,6 +134,7 @@ async function watch(job) {
     if (res.status === 401) return { error: "Signed out; sign in at archive.org, then Retry Errors" };
     const s = await res.json().catch(() => ({}));
     if (s.status === "success") return { timestamp: s.timestamp };
+    if (s.status === "error" && dailyLimit(s)) return { daily: s.message || s.status_ext };
     if (s.status === "error") return { error: s.message || s.status_ext || "Capture failed" };
   }
   return running ? { error: "Timed out waiting for the capture" } : { stopped: true };
@@ -175,24 +185,37 @@ async function runQueue() {
       } catch (e) {
         r = { error: String(e) };
       }
-      if (r.retryAfter && tries++ < 3 && running) {
-        Object.assign(item, { status: "waiting", message: "Save Page Now asked to slow down; trying again soon" });
+      // Asked to slow down: wait a minute, then two, then four (or longer if
+      // Save Page Now says so), and give up on this page after that
+      if (r.retryAfter && tries < 3 && running) {
+        const wait = Math.max(r.retryAfter, 60 * 2 ** tries);
+        tries++;
+        Object.assign(item, { status: "waiting", message: `Save Page Now asked to slow down, so trying again in ${Math.round(wait / 60)} min.` });
         await update();
-        await sleep(r.retryAfter * 1000);
+        await sleep(wait * 1000);
         continue;
+      }
+      // Today's limit is used up: put the page back and stop the queue
+      if (r.daily) {
+        Object.assign(item, { status: "queued", message: `Stopped: ${r.daily}` });
+        running = false;
+        break;
       }
       if (r.skipped) {
         Object.assign(item, { status: "skipped", message: r.skipped });
         break;
       }
       if (r.error || r.retryAfter) {
-        Object.assign(item, { status: "error", message: r.error || "Rate limited" });
+        Object.assign(item, { status: "error", message: r.error || "Save Page Now kept asking to slow down. Choose Retry Errors later." });
         break;
       }
       Object.assign(item, { status: "capturing", job: r.job, message: r.note || "" });
       await update();
       const w = await watch(r.job);
-      if (w.stopped) item.status = "queued";
+      if (w.daily) {
+        Object.assign(item, { status: "queued", message: `Stopped: ${w.daily}` });
+        running = false;
+      } else if (w.stopped) item.status = "queued";
       else if (w.error) Object.assign(item, { status: "error", message: w.error });
       else {
         Object.assign(item, { status: "success", timestamp: w.timestamp, message: "" });
@@ -201,7 +224,7 @@ async function runQueue() {
       break;
     }
     await update();
-    if (running && state.items.some((i) => i.status === "queued")) await sleep(Math.max(5, state.delay) * 1000);
+    if (running && state.items.some((i) => i.status === "queued")) await sleep(Math.max(MIN_DELAY, state.delay) * 1000);
   }
 }
 
