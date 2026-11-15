@@ -66,9 +66,11 @@ $("start").addEventListener("click", async () => {
   $("list").value = "";
   send({ type: "start" });
 });
+// Closes only the dialog window the add-on opened (the background script
+// knows its id); never the browser window. Anywhere else, just this page.
 $("close").addEventListener("click", async () => {
-  const win = await browser.windows.getCurrent();
-  browser.windows.remove(win.id);
+  const closed = await send({ type: "closeDialog" }).catch(() => false);
+  if (!closed) window.close();
 });
 $("retry").addEventListener("click", () => send({ type: "retry" }));
 $("clear").addEventListener("click", () => send({ type: "clear" }));

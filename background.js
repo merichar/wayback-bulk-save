@@ -23,6 +23,8 @@ const FORM_OPTIONS = {
 const DEFAULTS = { items: [], form: { ...FORM_OPTIONS }, within: "", delay: 20, running: false };
 
 let state = { ...DEFAULTS };
+// The dialog window's id, once the toolbar button has opened it
+let dialog = null;
 let running = false;
 
 async function load() {
@@ -194,13 +196,20 @@ browser.runtime.onMessage.addListener(async (msg) => {
       break;
     case "signedIn":
       return signedIn();
+    case "closeDialog": {
+      // Only the window this script created, and only if it's a popup window
+      if (dialog === null) return false;
+      const win = await browser.windows.get(dialog).catch(() => null);
+      if (!win || win.type !== "popup") return false;
+      await browser.windows.remove(dialog);
+      return true;
+    }
   }
   await update();
 });
 
 // The toolbar button opens the dialog as its own small window (a desktop
 // window, so its corners are square), or brings it forward if it's open
-let dialog = null;
 browser.browserAction.onClicked.addListener(async () => {
   if (dialog !== null) {
     try {
