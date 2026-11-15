@@ -20,7 +20,7 @@
   panel.id = "wbs-panel";
   panel.innerHTML = `
     <h2>Wayback Bulk Save</h2>
-    <p>Paste one address per line. Each is saved in turn with your signed-in session and the options checked in the Save form below, which are remembered; the next starts after the last capture finishes and the pause.</p>
+    <p>Paste one address per line. Each is saved in turn with your signed-in session and the options checked in the Save form above, which are remembered; the next starts after the last capture finishes and the pause.</p>
     <textarea id="wbs-list" spellcheck="false" placeholder="https://www.example.edu/page.html"></textarea>
     <div class="wbs-row">
       <label><input type="checkbox" id="wbs-mine"> Also Save in My Web Archive</label>
@@ -35,7 +35,12 @@
       <span id="wbs-summary" role="status"></span>
     </div>
     <table><thead><tr><th>Address</th><th>Status</th></tr></thead><tbody id="wbs-rows"></tbody></table>`;
-  (document.querySelector("main, #content, body") || document.body).prepend(panel);
+  // Below the Save form's row (the form is in #web_save_div, in a centered
+  // .row); at the top of the page if the form isn't there
+  const saveForm = document.getElementById("web-save-form");
+  const anchor = saveForm && (saveForm.closest(".row") || document.getElementById("web_save_div"));
+  if (anchor) anchor.after(panel);
+  else document.body.prepend(panel);
   const $ = (id) => panel.querySelector("#" + id);
 
   function render() {
@@ -69,7 +74,7 @@
   }
 
   // The Save page's own form and its checkboxes
-  const form = document.getElementById("web-save-form");
+  const form = saveForm;
   const boxes = () => (form ? [...form.querySelectorAll('input[type="checkbox"][name]')] : []);
   // "Also Save in My Web Archive": the panel's box and the Save form's own
   // (wm-save-mywebarchive) stay in step
